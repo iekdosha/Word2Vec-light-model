@@ -25,8 +25,9 @@ public class Word2VecLightModel {
     public Word2VecLightModel(String modelPath){
         this();
         char alphabet ;
+        System.out.println("Loading...");
         for(alphabet = 'a'; alphabet <= 'z'; alphabet++) {
-            System.out.println("loading: " + alphabet + ".txt");
+            //System.out.println("loading: " + alphabet + ".txt");
             this.addCharVocab(alphabet,readModelFile(modelPath + "\\" + alphabet + ".txt"));
         }
     }
@@ -109,7 +110,14 @@ public class Word2VecLightModel {
 
         HashMap<String , RealVector> map = new HashMap<>();
         RealVector vec = new ArrayRealVector(dimension);
-        sentence = new ArrayList<>(sentence);
+
+        ArrayList<String> clearedSentence = new ArrayList<>(sentence);
+        clearedSentence.removeAll(Arrays.asList("", null));
+        sentence = new ArrayList<>(clearedSentence);
+        if(sentence.isEmpty()){
+            return new ArrayRealVector(Word2VecLightModel.dimension);
+        }
+
         java.util.Collections.sort(sentence);
         sentence = sentence.stream().map(String::toLowerCase).collect(Collectors.toList());
         Map<Character, List<String>> alphabetSentence = sentence.stream().collect(Collectors.groupingBy(elem -> elem.charAt(0)));
@@ -150,47 +158,165 @@ public class Word2VecLightModel {
     public Map.Entry<String , RealVector> getMostSimilar(String word){
         word = word.toLowerCase();
         RealVector v = getWordVector(word);
-        Double max = new Double(-1);
-        Map.Entry maxEntry = null;
-        Double cur;
-
-        if(v.getNorm() == 0){
-            return null;
-        }
-
-        for(char alphabet : vocab.keySet()){
-            for(Map.Entry<String , RealVector> entry: vocab.get(alphabet).entrySet()){
-                cur = v.cosine(entry.getValue());
-                if(cur > max && ! entry.getKey().equals(word)){
-                    max = cur;
-                    maxEntry = entry;
-                }
-            }
-        }
-        return maxEntry;
+        return getMostSimilar(v);
+//        Double max = new Double(-1);
+//        Map.Entry maxEntry = null;
+//        Double cur;
+//
+//        if(v.getNorm() == 0){
+//            return null;
+//        }
+//
+//        for(char alphabet : vocab.keySet()){
+//            for(Map.Entry<String , RealVector> entry: vocab.get(alphabet).entrySet()){
+//                cur = v.cosine(entry.getValue());
+//                if(cur > max && ! entry.getKey().equals(word)){
+//                    max = cur;
+//                    maxEntry = entry;
+//                }
+//            }
+//        }
+//        return maxEntry;
     }
 
-    public Map.Entry<String , RealVector> getMostDifferent(String word){
+    public Map.Entry<String , RealVector> getMostSimilar(List<RealVector> positive, List<RealVector> negative, Boolean negateOperation){
 
-        RealVector v = getWordVector(word);
+        RealVector vec = new ArrayRealVector(Word2VecLightModel.dimension);
+        Set<RealVector> allVectors = new HashSet<>();
+
+        if(positive == null) positive = new ArrayList<>();
+        if(negative == null) negative = new ArrayList<>();
+
+        for(RealVector pos: positive){
+            vec = vec.add(pos);
+            allVectors.add(pos);
+        }
+        for(RealVector neg: negative){
+            vec = vec.subtract(neg);
+            allVectors.add(neg);
+
+        }
+
+        vec = vec.mapDivide(new Double(positive.size() + negative.size()));
+        vec = vec.unitVector();
+        System.out.println(">>>" + vec);
+
+        Double max = new Double(-1);
         Double min = new Double(1);
+        Map.Entry maxEntry = null;
         Map.Entry minEntry = null;
         Double cur;
 
-        if(v.getNorm() == 0){
+        if(vec.getNorm() == 0){
             return null;
         }
 
         for(char alphabet : vocab.keySet()){
             for(Map.Entry<String , RealVector> entry: vocab.get(alphabet).entrySet()){
-                cur = v.cosine(entry.getValue());
+                cur = vec.dotProduct(entry.getValue().unitVector());
+                if(cur > max && ! entry.getValue().equals(vec) && !allVectors.contains(entry.getValue())){
+                    max = cur;
+                    maxEntry = entry;
+                }
                 if(cur < min ){
                     min = cur;
                     minEntry = entry;
                 }
             }
         }
-        return minEntry;
+        if(negateOperation) return minEntry;
+        return maxEntry;
+
+    }
+
+    public Map.Entry<String , RealVector> getMostSimilar(List<String> positive, List<String> negative){
+        List<RealVector> posVectors = new ArrayList<>();
+        List<RealVector> negVectors = new ArrayList<>();
+        if(positive != null){
+            for(String word: positive){
+                posVectors.add(this.getWordVector(word));
+            }
+
+        }
+        if(negative != null){
+            for(String word: negative){
+                posVectors.add(this.getWordVector(word));
+            }
+
+        }
+
+        return getMostSimilar(posVectors,negVectors,false);
+
+    }
+
+
+//
+//    public Map.Entry<String , RealVector> getMostSimilar(List<RealVector> positive, List<RealVector> negative){
+//        return getMostSimilar(positive,negative,false);
+//    }
+
+
+
+    public Map.Entry<String , RealVector> getMostSimilar(RealVector vector, Boolean negateOperation){
+        List<RealVector> pos = Arrays.asList(vector);
+        return this.getMostSimilar(pos , null , false);
+
+//        Double max = new Double(-1);
+//        Double min = new Double(1);
+//        Map.Entry maxEntry = null;
+//        Map.Entry minEntry = null;
+//        Double cur;
+//
+//        if(vector.getNorm() == 0){
+//            return null;
+//        }
+//
+//        for(char alphabet : vocab.keySet()){
+//            for(Map.Entry<String , RealVector> entry: vocab.get(alphabet).entrySet()){
+//                cur = vector.cosine(entry.getValue());
+//                if(cur > max && ! entry.getValue().equals(vector)){
+//                    max = cur;
+//                    maxEntry = entry;
+//                }
+//                if(cur < min ){
+//                    min = cur;
+//                    minEntry = entry;
+//                }
+//            }
+//        }
+//        if(negateOperation) return minEntry;
+//        return maxEntry;
+    }
+
+    public Map.Entry<String , RealVector> getMostSimilar(RealVector vector){
+
+        return getMostSimilar(vector,false);
+
+    }
+
+
+    public Map.Entry<String , RealVector> getMostDifferent(String word){
+
+        RealVector v = getWordVector(word);
+        return getMostSimilar(v,true);
+//        Double min = new Double(1);
+//        Map.Entry minEntry = null;
+//        Double cur;
+//
+//        if(v.getNorm() == 0){
+//            return null;
+//        }
+//
+//        for(char alphabet : vocab.keySet()){
+//            for(Map.Entry<String , RealVector> entry: vocab.get(alphabet).entrySet()){
+//                cur = v.cosine(entry.getValue());
+//                if(cur < min ){
+//                    min = cur;
+//                    minEntry = entry;
+//                }
+//            }
+//        }
+//        return minEntry;
     }
 
 }
