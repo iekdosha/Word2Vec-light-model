@@ -208,8 +208,8 @@ Executed: Result subtracted with the value of: sun
 ```
 
 ### mul,div
-Regex: ```add <double>```
-Regex: ```sub <double>```
+Regex: ```mul <double>```
+Regex: ```div <double>```
 
 
 Multiply or Divide the current result with a constant.
