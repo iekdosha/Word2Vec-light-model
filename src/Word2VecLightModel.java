@@ -199,7 +199,6 @@ public class Word2VecLightModel {
 
         vec = vec.mapDivide(new Double(positive.size() + negative.size()));
         vec = vec.unitVector();
-        System.out.println(">>>" + vec);
 
         Double max = new Double(-1);
         Double min = new Double(1);
@@ -261,31 +260,6 @@ public class Word2VecLightModel {
         List<RealVector> pos = Arrays.asList(vector);
         return this.getMostSimilar(pos , null , false);
 
-//        Double max = new Double(-1);
-//        Double min = new Double(1);
-//        Map.Entry maxEntry = null;
-//        Map.Entry minEntry = null;
-//        Double cur;
-//
-//        if(vector.getNorm() == 0){
-//            return null;
-//        }
-//
-//        for(char alphabet : vocab.keySet()){
-//            for(Map.Entry<String , RealVector> entry: vocab.get(alphabet).entrySet()){
-//                cur = vector.cosine(entry.getValue());
-//                if(cur > max && ! entry.getValue().equals(vector)){
-//                    max = cur;
-//                    maxEntry = entry;
-//                }
-//                if(cur < min ){
-//                    min = cur;
-//                    minEntry = entry;
-//                }
-//            }
-//        }
-//        if(negateOperation) return minEntry;
-//        return maxEntry;
     }
 
     public Map.Entry<String , RealVector> getMostSimilar(RealVector vector){
@@ -294,29 +268,5 @@ public class Word2VecLightModel {
 
     }
 
-
-    public Map.Entry<String , RealVector> getMostDifferent(String word){
-
-        RealVector v = getWordVector(word);
-        return getMostSimilar(v,true);
-//        Double min = new Double(1);
-//        Map.Entry minEntry = null;
-//        Double cur;
-//
-//        if(v.getNorm() == 0){
-//            return null;
-//        }
-//
-//        for(char alphabet : vocab.keySet()){
-//            for(Map.Entry<String , RealVector> entry: vocab.get(alphabet).entrySet()){
-//                cur = v.cosine(entry.getValue());
-//                if(cur < min ){
-//                    min = cur;
-//                    minEntry = entry;
-//                }
-//            }
-//        }
-//        return minEntry;
-    }
 
 }

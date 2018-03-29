@@ -1,15 +1,12 @@
-import com.sun.org.apache.xpath.internal.SourceTree;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by itzhak on 27-Mar-18.
  */
-public class Interactor {
+public class Interaction {
 
     private static final String separator = ">>";
     private Word2VecLightModel model;
@@ -17,7 +14,7 @@ public class Interactor {
     private RealVector result;
     private HashMap<String,RealVector> environment;
 
-    public Interactor(Word2VecLightModel model){
+    public Interaction(Word2VecLightModel model){
         this.model = model;
         this.command = new LinkedList<>();
         this.environment = new HashMap<>();
@@ -66,7 +63,7 @@ public class Interactor {
             else if (cmd.startsWith("mul")) {
                 mul();
             }
-            else if (cmd.startsWith("cosine")) {
+            else if (cmd.startsWith("cos")) {
                 cosine();
             }
             else if (cmd.equals("norm")) {
@@ -79,7 +76,7 @@ public class Interactor {
             else if (cmd.startsWith("saveto")) {
                 save();
             }
-            else if (cmd.equals("result")) {
+            else if (cmd.equals("res")) {
                 result();
             }
             else if (cmd.equals("reset")) {
@@ -92,9 +89,11 @@ public class Interactor {
                 vars();
             }
             else {
-                throw new InteractorException("Command " + cmd + " is not recognized ");
+                throw new InteractionException("Command " + cmd + " is not recognized ");
             }
-            command.remove();
+            if(!command.isEmpty()) {
+                command.remove();
+            }
         }
 
 
@@ -116,7 +115,7 @@ public class Interactor {
 
     private void assertResultNotNull(){
         if(result == null){
-            throw new InteractorException("No current result");
+            throw new InteractionException("No current result");
         }
     }
 
@@ -134,7 +133,7 @@ public class Interactor {
 
     private void assertArgNum(int num){
         if(argNum(command.peek()) != num){
-            throw new InteractorException("Too many/few arguments, should be "+num);
+            throw new InteractionException("Too many/few arguments, should be "+num);
         }
     }
 
@@ -304,7 +303,7 @@ public class Interactor {
 
     private void reset(){
         this.environment.clear();
-        this.command.clear();
+        //this.command.clear();
         this.result = null;
         logExec("Memory cleared");
     }
@@ -319,8 +318,12 @@ public class Interactor {
 
 
     private void result(){
-
-        System.out.println("Current result: " + this.result);
+        if(this.result == null){
+            System.out.println("No current result");
+        }
+        else{
+            System.out.println("Current result: " + this.result);
+        }
 
     }
 
@@ -339,14 +342,14 @@ public class Interactor {
     }
 
     private static void logExec(String msg){
-        System.out.println("executed: " + msg);
+        System.out.println("Executed: " + msg);
     }
 
     private static void logErr(String msg){
         System.out.println("Error: " + msg);
     }
 
-    public void prompt(){
+    public void interact(){
 
         while(true){
             try{
@@ -356,7 +359,7 @@ public class Interactor {
                 executeCommands();
             }
             catch (ExitInterruption e){break;}
-            catch (InteractorException e){
+            catch (InteractionException e){
                 command.clear();
                 System.out.println("Invalid comman: " + e.getMessage() + " (commands cleared)");
             }
