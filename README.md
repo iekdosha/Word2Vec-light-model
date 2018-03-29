@@ -95,7 +95,7 @@ Is the same as
 ```
 
 ### get
-Regex: get <word>
+Regex: ```get <word>```
 To get an vector from the model or the local variables the command get is used.
 Note that the local variables override the model
 
@@ -109,7 +109,7 @@ Executed: retrieved variable bubble from model
 ```
 
 ### res
-Regex: result
+Regex: ```result```
 This command presents the current cumulative result
 
 In
@@ -123,7 +123,7 @@ Current result: {0.01300049; 0.09863281... -0.05273438; 0.12890625}
 ```
 
 ### saveto
-Regex: saveto <var_name>
+Regex: ```saveto <var_name>```
 Each result can be saved to a local variable using the ‘saveto’ command and used again in the session.
 Variable names may contain only alphanumeric characters and underscores.
 
@@ -152,7 +152,7 @@ Executed: retrieved variable wave from local variables
 ```
 
 ### vars
-Regex: vars
+Regex: ```vars```
 Simply display the current local variables
 
 In
@@ -167,7 +167,7 @@ wave:  {0.33789062; 0.17089844 ... 0.46289062; 0.35742188}
 ```
 
 ### reset
-Regex: reset
+Regex: ```reset```
 Reset the local variables and current result
 
 In
@@ -188,8 +188,8 @@ Variables:
 ```
 
 ### add,sub
-Regex: add <word>
-Regex: sub <word>
+Regex: ```add <word>```
+Regex: ```sub <word>```
 
 
 Add or subtract a vector from the current result
@@ -208,8 +208,8 @@ Executed: Result subtracted with the value of: sun
 ```
 
 ### mul,div
-Regex: add <double>
-Regex: sub <double>
+Regex: ```add <double>```
+Regex: ```sub <double>```
 
 
 Multiply or Divide the current result with a constant.
@@ -230,7 +230,7 @@ Executed: Result multiplied by -1.0
 ```
 
 ### neg
-Regex: neg
+Regex: ```neg```
 
 Negate current result (Similar to >>mul -1)
 
@@ -245,7 +245,7 @@ Executed: Result negated
 ```
 
 ### norm
-Regex: norm
+Regex: ```norm```
 
 Normalize the current result (turn the result to a unit vector)
 
@@ -260,7 +260,7 @@ Executed: Result normalized
 ```
 
 ### mean
-Regex: mean <word>(,<word>)*
+Regex: ```mean <word>(,<word>)*```
 
 Store in current result the mean (median) of the given term vectors.
 
@@ -279,7 +279,7 @@ Executed: Result changed to mean for words: [book, table, lamp]
 
 
 ### cos
-Regex: mean <word>
+Regex: ```mean <word>```
 
 Presents the cosine similarity value between the current result and the given word/variable vector.
 This command does not change the result.
@@ -296,7 +296,7 @@ Executed: Cosine similarity is: 0.403353707086893, result not changed
 ```
 
 ### sim
-Regex: sim (-?<word>)+
+Regex: ```sim (-?<word>)+```
 
 Retrieves from the model the most similar word vector to the given positive and negative words given.
 The returned value cannot be one of the given arguments.
@@ -314,7 +314,7 @@ Executed: The most similar word is: princess ,result changed
 ```
 
 ### exit
-Regex: sim
+Regex: ```exit```
 
 End session
 
